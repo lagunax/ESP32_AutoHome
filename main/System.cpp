@@ -9,7 +9,15 @@
 
 System::System() {
 	// TODO Auto-generated constructor stub
-	Web_Server = new WebServer(80);
+	#ifdef WEBSERVER_H
+		Web_Server = new WebServer(80);
+	#endif
+
+	#ifdef FTP_SERVERESP_H
+		FTP_Server = new FtpServer();
+		ftpServer = new WiFiServer( FTP_CTRL_PORT );
+		dataServer = new WiFiServer( FTP_DATA_PORT_PASV );
+	#endif
 }
 
 System::~System() {
@@ -72,8 +80,8 @@ System::~System() {
 //#include "../modules/WiFiClient.cpp"
 
 	void System::WFAPInit(){
-		const char* ssid     = "*****";     // your network SSID (name of wifi network)
-		const char* password = "*****"; // your network password
+		const char* ssid     = "****";     // your network SSID (name of wifi network)
+		const char* password = "****"; // your network password
 
 		//const char*  pskIdent = "Client_identity"; // PSK identity (sometimes called key hint)
 		//const char*  psKey = "ad2019cd"; // PSK Key (must be hex string without 0x)
@@ -101,6 +109,9 @@ System::~System() {
 		return WiFi.localIP();
 	}
 
+	//void System::FTPhandleClient(){
+		//this->FTP->handleFTP();
+	//}
 #endif
 
 

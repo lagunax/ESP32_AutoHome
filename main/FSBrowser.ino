@@ -29,7 +29,7 @@
 
 #define FILESYSTEM SPIFFS
 // You only need to format the filesystem once
-#define FORMAT_FILESYSTEM false
+#define FORMAT_FILESYSTEM true
 #define DBG_OUTPUT_PORT Serial
 
 #if FILESYSTEM == FFat
