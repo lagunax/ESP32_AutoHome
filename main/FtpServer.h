@@ -31,19 +31,20 @@
 #ifndef FTP_SERVERESP_H
 #define FTP_SERVERESP_H
 
+#include <Arduino.h>
+
 #ifndef ESP32
-#ifndef ESP8266
-#define ESP32
-#endif
+	#ifndef ESP8266
+		#define ESP32
+	#endif
 #endif
 
 //#include "Streaming.h"
-#include <Arduino.h>
 #ifdef ESP8266
-#include <ESP8266WiFi.h>
+	#include <ESP8266WiFi.h>
 #elif defined ESP32
-#include <WiFi.h>
-#include "SPIFFS.h"
+	#include <WiFi.h>
+	#include "SPIFFS.h"
 #endif
 #include <WiFiClient.h>
 #include <FS.h>
@@ -57,72 +58,75 @@
 #define FTP_CMD_SIZE 255 + 8 // max size of a command
 #define FTP_CWD_SIZE 255 + 8 // max size of a directory name
 #define FTP_FIL_SIZE 255     // max size of a file name
-//#define FTP_BUF_SIZE 1024 //512   // size of file buffer for read/write
 #define FTP_BUF_SIZE 2*1460 //512   // size of file buffer for read/write
 
-//#define FTPSERVER_FULLCLASS
-class FtpServer;
 
-class FtpServer
-{
-public:
-  void    begin(String uname, String pword);
-  void    handleFTP();
 
-private:
+namespace Service {
+	namespace FTP {
 
-#ifdef FTPSERVER_FULLCLASS
-  WiFiServer *ftpServer;
-  WiFiServer *dataServer;
-#endif
 
-  void    iniVariables();
-  void    clientConnected();
-  void    disconnectClient();
-  boolean userIdentity();
-  boolean userPassword();
-  boolean processCommand();
-  boolean dataConnect();
-  boolean doRetrieve();
-  boolean doStore();
-  void    closeTransfer();
-  void    abortTransfer();
-  boolean makePath( char * fullname );
-  boolean makePath( char * fullName, char * param );
-  uint8_t getDateTime( uint16_t * pyear, uint8_t * pmonth, uint8_t * pday,
-                       uint8_t * phour, uint8_t * pminute, uint8_t * second );
-  char *  makeDateTimeStr( char * tstr, uint16_t date, uint16_t time );
-  int8_t  readChar();
+		class FtpServer;
+		void Start(String user, String pass);
+		void Handle();
 
-  IPAddress      dataIp;              // IP address of client for data
-  WiFiClient client;
-  WiFiClient data;
-  
-  File file;
-  
-  boolean  dataPassiveConn;
-  uint16_t dataPort;
-  char     buf[ FTP_BUF_SIZE ];       // data buffer for transfers
-  char     cmdLine[ FTP_CMD_SIZE ];   // where to store incoming char from client
-  char     cwdName[ FTP_CWD_SIZE ];   // name of current directory
-  char     command[ 5 ];              // command sent by client
-  boolean  rnfrCmd;                   // previous command was RNFR
-  char *   parameters;                // point to begin of parameters sent by client
-  uint16_t iCL;                       // pointer to cmdLine next incoming char
-  int8_t   cmdStatus,                 // status of ftp command connexion
-           transferStatus;            // status of ftp data transfer
-  uint32_t millisTimeOut,             // disconnect after 5 min of inactivity
-           millisDelay,
-           millisEndConnection,       // 
-           millisBeginTrans,          // store time of beginning of a transaction
-           bytesTransfered;           //
-  String   _FTP_USER;
-  String   _FTP_PASS;
+		class FtpServer
+		{
+		public:
+		  void    begin(String uname, String pword);
+		  void    handleFTP();
 
-  
+		private:
+		  //WiFiServer ftpServer;
+		  //WiFiServer dataServer;
+		  void    iniVariables();
+		  void    clientConnected();
+		  void    disconnectClient();
+		  boolean userIdentity();
+		  boolean userPassword();
+		  boolean processCommand();
+		  boolean dataConnect();
+		  boolean doRetrieve();
+		  boolean doStore();
+		  void    closeTransfer();
+		  void    abortTransfer();
+		  boolean makePath( char * fullname );
+		  boolean makePath( char * fullName, char * param );
+		  uint8_t getDateTime( uint16_t * pyear, uint8_t * pmonth, uint8_t * pday,
+							   uint8_t * phour, uint8_t * pminute, uint8_t * second );
+		  char *  makeDateTimeStr( char * tstr, uint16_t date, uint16_t time );
+		  int8_t  readChar();
 
-};
+		  IPAddress      dataIp;              // IP address of client for data
+		  WiFiClient client;
+		  WiFiClient data;
+
+		  File file;
+
+		  boolean  dataPassiveConn;
+		  uint16_t dataPort;
+		  char     buf[ FTP_BUF_SIZE ];       // data buffer for transfers
+		  char     cmdLine[ FTP_CMD_SIZE ];   // where to store incoming char from client
+		  char     cwdName[ FTP_CWD_SIZE ];   // name of current directory
+		  char     command[ 5 ];              // command sent by client
+		  boolean  rnfrCmd;                   // previous command was RNFR
+		  char *   parameters;                // point to begin of parameters sent by client
+		  uint16_t iCL;                       // pointer to cmdLine next incoming char
+		  int8_t   cmdStatus,                 // status of ftp command connexion
+				   transferStatus;            // status of ftp data transfer
+		  uint32_t millisTimeOut,             // disconnect after 5 min of inactivity
+				   millisDelay,
+				   millisEndConnection,       //
+				   millisBeginTrans,          // store time of beginning of a transaction
+				   bytesTransfered;           //
+		  String   _FTP_USER;
+		  String   _FTP_PASS;
+
+
+
+		};
+
+	}
+}
 
 #endif // FTP_SERVERESP_H
-
-

@@ -5,6 +5,10 @@
  *      Author: producer
  */
 
+
+#define SERVICE_FTP
+#define SERVICE_WEB
+
 #ifndef MAIN_SYSTEM_H_
 	#define MAIN_SYSTEM_H_
 
@@ -19,36 +23,28 @@
 	//#include <WiFi.h>
 	//#include <WiFiClient.h>
 	#include <WiFiClientSecure.h>
-	#include <WebServer.h>
 	#include <ESPmDNS.h>
 	//#include "tftprint.cpp"
 	//#include "Free_Fonts.cpp"
 	#include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
 	#include <SPI.h>
 	#include <ESPmDNS.h>
-	#include "FtpServer.h"
+
+
+	#ifdef SERVICE_FTP
+		#include "FtpServer.h"
+	#endif
+
+	#ifdef SERVICE_WEB
+		#include "WebService.h"
+	#endif
 
 	#define TFT_GREY 0x5AEB // New colour
 
-
-
-	//WebServer Web_Server(80);
-	//Main Variables
-
-				bool WEB_is_authentified();
-				void WEB_handleLogin();
-				void WEB_handleRoot();
-				void WEB_handleNotFound();
-				void handleFileList();
-				void handleFileCreate();
-				void handleFileDelete();
-				void handleFileUpload();
-				bool handleFileRead(String path);
-				bool exists(String path);
-				String getContentType(String filename);
-				String formatBytes(size_t bytes);
+#include "upng.h"
 
 	class System {
+
 
 		private:
 			#ifdef _BLUETOOTH_SERIAL_H_
@@ -61,15 +57,7 @@
 			#ifdef WiFiClientSecure_h
 				WiFiClientSecure WiFi_client;
 			#endif
-
-			#ifdef WEBSERVER_H
-				//WebServer Web_Server(80);
-			#endif
-
-			#ifdef FTP_SERVERESP_H
-				//FtpServer *FTP;
-			#endif
-
+				upng_t* upng;
 
 		public:
 			#ifdef _BLUETOOTH_SERIAL_H_
@@ -78,6 +66,8 @@
 				#endif
 
 				void BTInit();
+
+				TFT_eSPI *tft;  // Invoke library
 
 				bool BTbegin(String);
 				int BTavailable(void);
@@ -105,26 +95,13 @@
 
 			#ifdef WEBSERVER_H
 				//#include "../modules/HTTP_Server.h
-	/*
-				bool WEB_is_authentified();
-				void WEB_handleLogin();
-				void WEB_handleRoot();
-				void WEB_handleNotFound();*/
-				WebServer *Web_Server;
 
-				void WEB_Start();
 			#endif
 
 			#ifdef FTP_SERVERESP_H
-				#define FTPSERVER_FULLCLASS
-
-				WiFiServer *ftpServer;
-				WiFiServer *dataServer;
-				void FTPInit();
-				//void FTPhandleClient();
-				FtpServer *FTP_Server;
+				Service::FTP::FtpServer *FTP_Server;
 			#endif
-
+				void DrawPng();
 
 		System();
 		virtual ~System();
