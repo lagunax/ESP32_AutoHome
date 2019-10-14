@@ -10,7 +10,7 @@
 System::System() {
 	// TODO Auto-generated constructor stub
 	#ifdef FTP_SERVERESP_H
-		FTP_Server = new Service::FTP::FtpServer();
+		//FTP_Server = new Service::FTP::FtpServer();
 	#endif
 		tft = new TFT_eSPI();
 
@@ -24,7 +24,7 @@ System::~System() {
 #ifdef _BLUETOOTH_SERIAL_H_
 //#include "../modules/Bluetooth.cpp"
 	void System::BTInit(){
-		this->BTbegin("ESP32test"); //Bluetooth device name
+		this->BTbegin("ESP32-Autohome"); //Bluetooth device name
 		Serial.println("[Bluetooth] started!");
 	}
 
@@ -77,9 +77,7 @@ System::~System() {
 //#include "../modules/WiFiClient.cpp"
 
 	void System::WFAPInit(){
-		const char* ssid     = "****";     // your network SSID (name of wifi network)
-		const char* password = "****"; // your network password
-
+#include "../../wf.pass"; //contains initialization for ssid and password for wifi
 		WiFi.begin(ssid, password);
 
 		// attempt to connect to Wifi network:
@@ -108,7 +106,11 @@ System::~System() {
 	void System::DrawPng(){
 		unsigned width, height;
 		void *buffer;
-		void *pixel;
+		upng_s_rgba32b *pixel;
+		upng_s_rgb24b *pixel_src = InitColorR8G8B8();
+		upng_s_rgb16b *pixel_dst = InitColorR5G6B5();
+		uint32_t tmp;
+
 		upng = upng_new_from_file("/t.png");
 		if (upng_get_error(upng) == UPNG_ENOTFOUND)
 		{
@@ -120,14 +122,14 @@ System::~System() {
 		buffer = malloc((unsigned long int)upng_get_size(upng));
 		buffer=(void *)upng_get_buffer(upng);
 
-/*		char ttt;
+//		char ttt;
 
-		for(char bbb=0; bbb<7; bbb++){
-			ttt=*((char *)(buffer+bbb));
-			Serial.printf("buffer[0...7]=%i",(int)ttt);
-		}
-*/
-		Serial.printf("buffer size: %i",(int) upng_get_size(upng));
+//		for(char bbb=0; bbb<7; bbb++){
+//			ttt=*((char *)(buffer+bbb));
+//			Serial.printf("buffer[0...7]=%i",(int)ttt);
+//		}
+//
+//		Serial.printf("buffer size: %i",(int) upng_get_size(upng));
 		if (upng_get_error(upng) != UPNG_EOK) {
 			//printf("error: %u %u\n", upng_get_error(upng), upng_get_error_line(upng));
 			Serial.printf("error: %u %u\n", upng_get_error(upng), upng_get_error_line(upng));
@@ -139,10 +141,21 @@ System::~System() {
 		//uint bpp=upng_get_bitdepth(upng);
 		uint bpp = upng_get_bpp(upng);
 
-		pixel = malloc((unsigned long int) ((bpp+7)/8));
+		pixel = (upng_s_rgba32b *)malloc((unsigned long int) ((bpp+7)/8));
 		//buffer = malloc((unsigned long int)upng_get_size(upng));
 		//buffer=(void *)upng_get_buffer(upng);
-		tft->printf("bpp=%n", (int*) &bpp);
+		//tft->printf("bpp=%n", (int*) &bpp);
+
+for (char xx=0; xx<width; xx++){for (char yy=0; yy<height; yy++){
+//	Serial.printf("\n--- x = %i, y = %i --- \n",(int)xx,(int)yy);
+	upng_GetPixel((void *)pixel, upng, (int)xx, (int)yy);
+//	Serial.printf("\n r=%i, g=%i, b=%i, a=%i", int (pixel->rgb.r), int (pixel->rgb.g), int (pixel->rgb.b), int(pixel->alpha));
+	*pixel_src=pixel->rgb;
+	upng_rgb24bto16b(pixel_dst, pixel_src);
+//	Serial.printf("\n r=%i, g=%i, b=%i", int (pixel_dst->r), int (pixel_dst->g), int (pixel_dst->b));
+	upng_rgb16btouint32(&tmp, pixel_dst);
+	tft->drawPixel(xx,yy,tmp);
+}}
 
 
 		switch (upng_get_components(upng)) {
@@ -158,20 +171,19 @@ System::~System() {
 		case 4://UPNG_RGBA
 			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, upng_get_width(upng), upng_get_height(upng), 0, GL_RGBA, GL_UNSIGNED_BYTE, upng_get_buffer(upng));
 			break;
+		case 5: //UPNG_PAL
+			break;
 		default: //0 or any else
 			break;
 			//return 1;
 		}
 
 		free(pixel);
-		free(buffer);
+		//free(buffer); do not need to free here, upng_free removes buffer
 
 		upng_free(upng);
+		buffer=0;
 		}
-		for (char xx=0; xx<0xF; xx++){for (char yy=0; yy<0xF; yy++){
-
-			tft->drawPixel(xx,yy,(uint)((xx<<12)*0+(yy<<24)));
-		}}
 
 	}
 

@@ -22,8 +22,12 @@
 
 TaskHandle_t loopTaskHandle = NULL;
 System *sys = new System();
-
-
+byte *buff;//=(byte *) malloc(32);
+unsigned int *color;
+int input;
+char pos;
+upng_s_rgb16b *Color16b;
+upng_s_rgb24b *Color24b;
 //Service::FTP::FtpServer ftpSrv;   //set #define FTP_DEBUG in ESP8266FtpServer.h to see ftp verbose on serial
 
 
@@ -36,7 +40,19 @@ bool loopTaskWDTEnabled;
 
 
 void setup() {
-	  sys->tft->init();
+
+	  /*buff=(byte *) malloc(32);
+	  for (byte i=0;i<32;i++){
+		  *(buff+i)=(byte)0;
+	  }*/
+	  input=0;
+	  pos = 0;
+	  //*color=0;
+	  InitColor(&Color16b);
+	  InitColor(&Color24b);
+
+
+	sys->tft->init();
 	  sys->tft->setRotation(2);
 	  sys->tft->fillScreen(TFT_BLACK);
 	  sys->tft->setCursor(0, 0, 2);
@@ -52,7 +68,7 @@ void setup() {
 
   sys->BTInit();
   sys->tft->println("BT");
-
+/*
   sys->WFAPInit();
   sys->tft->println("WiFi");
 
@@ -64,12 +80,8 @@ void setup() {
   Service::FTP::Start("user","pass");
   sys->tft->println("FTP");
 #endif
-
+*/
   sys->tft->fillScreen(TFT_BLACK);
-
-  for (int y=10; y<100; y++){
-	  sys->tft->drawPixel(20,y,0xFF);
-  };
 
   sys->DrawPng();
 
@@ -78,22 +90,54 @@ void setup() {
 void loop() {
 
 	#ifdef _BLUETOOTH_SERIAL_H_
-int testi;
-	//Bluetooth module
+		//Bluetooth module
 
-		if (sys->BTavailable()) {
-			sys->BTwrite(Serial.read());
-		}
-		if (sys->BTavailable()) {
-			testi=sys->BTread();
-			Serial.write(testi);
-			sys->BTwrite((const unsigned char *)"test",4);
-			sys->BTwrite(testi);
-		}
-	#endif
+//		if (sys->BTavailable()) {
+//			sys->BTwrite(Serial.read());
+//		}
+/*		if (sys->BTavailable()) {
+			input=sys->BTread();
+			//Serial.printf("\ninput=%i pos=%i",input, (int) pos);
+			if ((input>=48)&&(input<=49)){
+				*(buff+pos)=(char)input-48;
+				pos++;
+			}
+			if ((pos>31)||(input==13)){
+				pos=0;
+				//sys->BTwrite((const unsigned char *)"\n",1);
+				for(byte ipos=0;ipos<31;ipos++){
+					//Serial.printf("\n buff=%i | %i",(int) *(buff+ipos),(int)(((char)*(buff+ipos))*pow((double)2,(double)ipos)));
+					*color+=(((char)*(buff+ipos))*pow((double)2,(double)ipos));
+				}
+				//Serial.printf("\ncolor=%i",color);
+				upng_rgb24bto16b(Color16b, Color24b);
+				Serial.printf("\ncolor=%i",*(int*)Color24b);
+				Serial.printf("\ncolor16=%i\n",*(int*)Color16b);
 
-	Service::FTP::Handle();
-	Service::HTTP::Handle();
+				for (int xx=70;xx<100;xx++){
+					for (int yy=70;yy<100;yy++){
+						sys->tft->drawPixel(xx,yy,*(unsigned int*)Color16b);
+					}
+				}
+				for(byte ipos=0;ipos<31;ipos++){
+					*(buff+ipos)=0;
+				}
+				//color=0;
+			}
+		}
+
+*/
+
+			//testi=sys->BTread();
+			//Serial.write(input);
+			//sys->BTwrite((const unsigned char *)"test",4);
+			//sys->BTwrite(testi);
+
+
+#endif
+
+	//Service::FTP::Handle();
+	//Service::HTTP::Handle();
 }
 
 

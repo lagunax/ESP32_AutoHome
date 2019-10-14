@@ -23,12 +23,12 @@
 	//#include <WiFi.h>
 	//#include <WiFiClient.h>
 	#include <WiFiClientSecure.h>
-	#include <ESPmDNS.h>
+//	#include <ESPmDNS.h>
 	//#include "tftprint.cpp"
 	//#include "Free_Fonts.cpp"
 	#include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
-	#include <SPI.h>
-	#include <ESPmDNS.h>
+//	#include <SPI.h>
+//	#include <ESPmDNS.h>
 
 
 	#ifdef SERVICE_FTP

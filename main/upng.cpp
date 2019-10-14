@@ -72,6 +72,7 @@ typedef enum upng_state {
 typedef enum upng_color {
 	UPNG_LUM		= 0,
 	UPNG_RGB		= 2,
+	UPNG_PAL		= 3,
 	UPNG_LUMA		= 4,
 	UPNG_RGBA		= 6
 } upng_color;
@@ -858,6 +859,21 @@ static upng_format determine_format(upng_t* upng) {
 			break;
 		}
 		break;
+	case UPNG_PAL:
+		switch (upng->color_depth) {
+		case 1:
+			return UPNG_PALLETTE1;
+		case 2:
+			return UPNG_PALLETTE2;
+		case 4:
+			return UPNG_PALLETTE4;
+		case 8:
+			return UPNG_PALLETTE8;
+		default:
+			return UPNG_BADFORMAT;
+			break;
+		}
+		break;
 	case UPNG_LUMA:
 		switch (upng->color_depth) {
 		case 1:
@@ -1207,27 +1223,6 @@ upng_t* upng_new_from_file(const char *filename)
 	//fclose(file);
 	file.close();
 
-	Serial.printf("\n");
-	Serial.printf("\n size %li \n", size);
-
-	int line=0;
-	int col=0;
-	for (int iByte=0; iByte < size; iByte++){
-		Serial.printf("%i-", int((char*)buffer[iByte]));
-		col++;
-		if (col==16) {col=0; line++;Serial.printf("\n");};
-	}
-
-	size = (long) Remove0Dbefor0A(buffer, (unsigned long)size);
-	Serial.printf("\n size %li \n", size);
-
-	Serial.printf("\n");
-	for (int iByte=0; iByte < size; iByte++){
-		Serial.printf("%i-", int((char*)buffer[iByte]));
-		col++;
-		if (col==16) {col=0; line++;Serial.printf("\n");};
-	}
-
 	/* set the read buffer as our source buffer, with owning flag set */
 	upng->source.buffer = (const unsigned char*)buffer;
 	upng->source.size = size;
@@ -1238,6 +1233,7 @@ upng_t* upng_new_from_file(const char *filename)
 
 void upng_free(upng_t* upng)
 {
+	Serial.print("\nupng free");
 	/* deallocate image buffer */
 	if (upng->buffer != NULL) {
 		free(upng->buffer);
@@ -1286,6 +1282,8 @@ unsigned upng_get_components(const upng_t* upng)
 		return 2;
 	case UPNG_RGBA:
 		return 4;
+	case UPNG_PAL:
+		return 1;
 	default:
 		return 0;
 	}
@@ -1318,35 +1316,84 @@ unsigned upng_get_size(const upng_t* upng)
 	return upng->size;
 }
 
-unsigned long Remove0Dbefor0A(void *buffer, unsigned long size){
-	/*
-	 * Function search for 0D 0A combination and removes 0D bytes in files where this
-	 * combination will found.
-	 *
-	 * buffer - pointer to the buffer
-	 * size - size of buffer
-	 *
-	 * Returns size of modified buffer, with this size you can realloc buffer memory
-	 * with less size then it was before calling function.
-	 *
-	 */
+void upng_GetPixel(void* pixel, const upng_t* upng, int x, int y){
+	unsigned int bpp = upng_get_bpp(upng);
+//	Serial.printf("\nbbp=%i\n",(int)bpp);
+	unsigned long Bpp = ((bpp+7)/8);
+	unsigned long position = (upng->width*y+x)*Bpp;
+//	Serial.printf("\nposition in file=%li\n",(long)position);
+	memcpy(pixel,upng->buffer+position,Bpp);
+}
 
-	char *left=(char *)malloc(1);
-	char *cur= (char *)malloc(1);
 
-	for (unsigned int iByte=(size-1); iByte>1; iByte--){
-		memcpy(cur,buffer+iByte,1);
-		if (*cur==0x0A){
-			memcpy(left,buffer+iByte-1,1);
-			if (*left==0x0D){
-				for (unsigned int pos=iByte-1; pos<(size-2); pos++) memcpy(buffer+pos,buffer+pos+1,1);
-				iByte--;
-				size--;
-			}
-		}
+
+/*
+ * Initializing color variables
+ */
+upng_s_rgb16b* InitColorR5G6B5(){
+	upng_s_rgb16b*color=(upng_s_rgb16b*)malloc(sizeof(upng_s_rgb16b));
+	if (color!=0){
+		ResetColor(color);
 	}
+	return color;
+}
+upng_s_rgb18b* InitColorR6G6B6(){
+	upng_s_rgb18b*color=(upng_s_rgb18b*)malloc(sizeof(upng_s_rgb18b));
+	if (color!=0){
+		ResetColor(color);
+	}
+	return color;
+}
+upng_s_rgb24b* InitColorR8G8B8(){
+	upng_s_rgb24b*color=(upng_s_rgb24b*)malloc(sizeof(upng_s_rgb24b));
+	if (color!=0){
+		ResetColor(color);
+	}
+	return color;
+}
 
-	free(cur);
-	free(left);
-	return size;
+void InitColor(upng_s_rgb16b **dst){
+	*dst=(upng_s_rgb16b*)malloc(sizeof(upng_s_rgb16b));
+	ResetColor(*dst);
+}
+void InitColor(upng_s_rgb18b **dst){
+	*dst=(upng_s_rgb18b*)malloc(sizeof(upng_s_rgb18b));
+	ResetColor(*dst);
+}
+void InitColor(upng_s_rgb24b **dst){
+	*dst=(upng_s_rgb24b*)malloc(sizeof(upng_s_rgb24b));
+	ResetColor(*dst);
+}
+
+void ResetColor(upng_s_rgb16b *dst){
+	*dst=(upng_s_rgb16b){0,0,0,0};
+}
+void ResetColor(upng_s_rgb18b *dst){
+	*dst=(upng_s_rgb18b){0,0,0,0};
+}
+void ResetColor(upng_s_rgb24b *dst){
+	*dst=(upng_s_rgb24b){0,0,0,0};
+}
+
+
+/*
+ * Converting between colors
+ */
+
+void upng_rgb24bto18b(upng_s_rgb18b *dst, upng_s_rgb24b *src){
+	dst->r=src->r>>2;//3;//2;
+	dst->g=src->g>>2;
+	dst->b=src->b>>2;//3;//2;
+}
+
+void upng_rgb24bto16b(upng_s_rgb16b *dst, upng_s_rgb24b *src){
+	dst->r=src->r>>3;//3;//2;
+	dst->g=src->g>>2;
+	dst->b=src->b>>3;//3;//2;
+}
+void upng_rgb18btouint32(uint32_t *dst, upng_s_rgb18b *src){
+	memcpy(dst,src,sizeof(upng_s_rgb18b));
+}
+void upng_rgb16btouint32(uint32_t *dst, upng_s_rgb16b *src){
+	memcpy(dst,src,sizeof(upng_s_rgb16b));
 }

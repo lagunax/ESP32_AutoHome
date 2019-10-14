@@ -35,6 +35,36 @@ freely, subject to the following restrictions:
 //	#if !defined(UPNG_H)
 //		#define UPNG_H
 
+		struct upng_s_rgb16b{
+			int r:5;//5;//6;
+			int g:6;
+			int b:5;//5;//6;
+			int null : 16;
+		};
+		struct upng_s_rgb18b{
+			int r:6;//5;//6;
+			int g:6;
+			int b:6;//5;//6;
+			int null:14;
+		};
+		struct upng_s_rgb24b{
+			int r:8;
+			int g:8;
+			int b:8;
+			int null:8;
+		};
+
+		struct upng_s_rgba32b{
+			upng_s_rgb24b rgb;
+			byte alpha;
+		};
+
+		typedef enum upng_color_type {
+			UPNG_CT_PALETTE	= 1,
+			UPNG_CT_COLOR	= 2,
+			UPNG_CT_ALPHA	= 4
+		} upng_color_type;
+
 		typedef enum upng_error {
 			UPNG_EOK			= 0, /* success (no error) */
 			UPNG_ENOMEM			= 1, /* memory allocation failed */
@@ -60,7 +90,11 @@ freely, subject to the following restrictions:
 			UPNG_LUMINANCE_ALPHA1,
 			UPNG_LUMINANCE_ALPHA2,
 			UPNG_LUMINANCE_ALPHA4,
-			UPNG_LUMINANCE_ALPHA8
+			UPNG_LUMINANCE_ALPHA8,
+			UPNG_PALLETTE1,
+			UPNG_PALLETTE2,
+			UPNG_PALLETTE4,
+			UPNG_PALLETTE8
 		} upng_format;
 
 		typedef struct upng_t upng_t;
@@ -86,7 +120,21 @@ freely, subject to the following restrictions:
 		const unsigned char*	upng_get_buffer		(const upng_t* upng);
 		unsigned				upng_get_size		(const upng_t* upng);
 
-		unsigned long Remove0Dbefor0A(void *buffer, unsigned long size);
+		void upng_GetPixel(void* pixel, const upng_t* upng, int x, int y); //Get pixel info from buffer
+
+		upng_s_rgb16b* InitColorR5G6B5();
+		upng_s_rgb18b* InitColorR6G6B6();
+		upng_s_rgb24b* InitColorR8G8B8();
+		void InitColor(upng_s_rgb16b **dst);
+		void InitColor(upng_s_rgb18b **dst);
+		void InitColor(upng_s_rgb24b **dst);
+		void ResetColor(upng_s_rgb16b *dst);
+		void ResetColor(upng_s_rgb18b *dst);
+		void ResetColor(upng_s_rgb24b *dst);
+		void upng_rgb24bto18b(upng_s_rgb18b *dst, upng_s_rgb24b *src); //Converts 24bit-color(r8,g8,b8) into 18bit-color(r6,g6,b6)
+		void upng_rgb24bto16b(upng_s_rgb16b *dst, upng_s_rgb24b *src); //Converts 24bit-color(r8,g8,b8) into 16bit-color(r5,g6,b5)
+		void upng_rgb18btouint32(uint32_t *dst, upng_s_rgb18b *src);
+		void upng_rgb16btouint32(uint32_t *dst, upng_s_rgb16b *src);
 
 //	#endif /*defined(UPNG_H)*/
 
