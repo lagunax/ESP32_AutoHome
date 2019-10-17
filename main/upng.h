@@ -25,26 +25,22 @@ freely, subject to the following restrictions:
 */
 
 
-#ifndef IMAGE_PNG_H
-	#define IMAGE_PNG_H
+#ifndef UPNG_H
+	#define UPNG_H
 	#include <Arduino.h>
 	#include <FS.h>
 	#include "SPIFFS.h"
 
-
-//	#if !defined(UPNG_H)
-//		#define UPNG_H
-
 		struct upng_s_rgb16b{
-			int r:5;//5;//6;
+			int r:5;
 			int g:6;
-			int b:5;//5;//6;
+			int b:5;
 			int null : 16;
 		};
 		struct upng_s_rgb18b{
-			int r:6;//5;//6;
+			int r:6;
 			int g:6;
-			int b:6;//5;//6;
+			int b:6;
 			int null:14;
 		};
 		struct upng_s_rgb24b{
@@ -125,16 +121,21 @@ freely, subject to the following restrictions:
 		upng_s_rgb16b* InitColorR5G6B5();
 		upng_s_rgb18b* InitColorR6G6B6();
 		upng_s_rgb24b* InitColorR8G8B8();
-		void InitColor(upng_s_rgb16b **dst);
-		void InitColor(upng_s_rgb18b **dst);
-		void InitColor(upng_s_rgb24b **dst);
+		bool InitColor(upng_s_rgb16b **dst);
+		bool InitColor(upng_s_rgb18b **dst);
+		bool InitColor(upng_s_rgb24b **dst);
 		void ResetColor(upng_s_rgb16b *dst);
 		void ResetColor(upng_s_rgb18b *dst);
 		void ResetColor(upng_s_rgb24b *dst);
 		void upng_rgb24bto18b(upng_s_rgb18b *dst, upng_s_rgb24b *src); //Converts 24bit-color(r8,g8,b8) into 18bit-color(r6,g6,b6)
 		void upng_rgb24bto16b(upng_s_rgb16b *dst, upng_s_rgb24b *src); //Converts 24bit-color(r8,g8,b8) into 16bit-color(r5,g6,b5)
-		void upng_rgb18btouint32(uint32_t *dst, upng_s_rgb18b *src);
-		void upng_rgb16btouint32(uint32_t *dst, upng_s_rgb16b *src);
+		bool upng_rgb18btouint32(uint32_t *dst, upng_s_rgb18b *src);
+		bool upng_rgb16btouint32(uint32_t *dst, upng_s_rgb16b *src);
+
+		uint8_t		color16to8(uint16_t color565); // Convert 16 bit color to 8 bits
+
+		uint16_t	color565(uint8_t red, uint8_t green, uint8_t blue),   // Convert 8 bit red, green and blue to 16 bits
+					color8to16(uint8_t color332);  // Convert 8 bit color to 16 bits
 
 //	#endif /*defined(UPNG_H)*/
 

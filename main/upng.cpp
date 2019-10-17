@@ -24,11 +24,6 @@ freely, subject to the following restrictions:
 		distribution.
 */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <limits.h>
-
 #include "upng.h"
 
 #define MAKE_BYTE(b) ((b) & 0xFF)
@@ -905,6 +900,7 @@ static upng_format determine_format(upng_t* upng) {
 	}
 }
 
+/* free memory spent by source */
 static void upng_free_source(upng_t* upng)
 {
 	if (upng->source.owning != 0) {
@@ -1186,7 +1182,6 @@ upng_t* upng_new_from_file(const char *filename)
 {
 	upng_t* upng;
 	char *buffer;
-	//FILE *file;
 	File file;
 	long size;
 
@@ -1203,24 +1198,16 @@ upng_t* upng_new_from_file(const char *filename)
 	}
 
 	/* get filesize */
-	//fseek(file, 0, SEEK_END);
-	//file.seek(0,SeekEnd);
-	//size = ftell(file);
 	size = file.size(); //file.position();
-	//rewind(file);
-	//file.seek(0,SeekSet);
 
 	/* read contents of the file into the vector */
 	buffer = (char *)malloc((unsigned long)size);
 	if (buffer == NULL) {
-		//fclose(file);
 		file.close();
 		SET_ERROR(upng, UPNG_ENOMEM);
 		return upng;
 	}
-	//fread(buffer, 1, (unsigned long)size, file);
 	file.readBytes(buffer,(size_t)size);
-	//fclose(file);
 	file.close();
 
 	/* set the read buffer as our source buffer, with owning flag set */
@@ -1352,17 +1339,29 @@ upng_s_rgb24b* InitColorR8G8B8(){
 	return color;
 }
 
-void InitColor(upng_s_rgb16b **dst){
+bool InitColor(upng_s_rgb16b **dst){
 	*dst=(upng_s_rgb16b*)malloc(sizeof(upng_s_rgb16b));
-	ResetColor(*dst);
+	if (dst!=0){
+		ResetColor(*dst);
+		return true;
+	}
+	return false;
 }
-void InitColor(upng_s_rgb18b **dst){
+bool InitColor(upng_s_rgb18b **dst){
 	*dst=(upng_s_rgb18b*)malloc(sizeof(upng_s_rgb18b));
-	ResetColor(*dst);
+	if (dst!=0){
+		ResetColor(*dst);
+		return true;
+	}
+	return false;
 }
-void InitColor(upng_s_rgb24b **dst){
+bool InitColor(upng_s_rgb24b **dst){
 	*dst=(upng_s_rgb24b*)malloc(sizeof(upng_s_rgb24b));
-	ResetColor(*dst);
+	if (dst!=0){
+		ResetColor(*dst);
+		return true;
+	}
+	return false;
 }
 
 void ResetColor(upng_s_rgb16b *dst){
@@ -1391,9 +1390,55 @@ void upng_rgb24bto16b(upng_s_rgb16b *dst, upng_s_rgb24b *src){
 	dst->g=src->g>>2;
 	dst->b=src->b>>3;//3;//2;
 }
-void upng_rgb18btouint32(uint32_t *dst, upng_s_rgb18b *src){
-	memcpy(dst,src,sizeof(upng_s_rgb18b));
+bool upng_rgb18btouint32(uint32_t *dst, upng_s_rgb18b *src){
+	if ((dst!=0)&(src!=0)){
+		memcpy(dst,src,sizeof(upng_s_rgb18b));
+		return true;
+	}else{
+		return false;
+	}
 }
-void upng_rgb16btouint32(uint32_t *dst, upng_s_rgb16b *src){
-	memcpy(dst,src,sizeof(upng_s_rgb16b));
+bool upng_rgb16btouint32(uint32_t *dst, upng_s_rgb16b *src){
+	if ((dst!=0)&(src!=0)){
+		memcpy(dst,src,sizeof(upng_s_rgb16b));
+		return true;
+	}else{
+		return false;
+	}
 }
+
+/***************************************************************************************
+** Function name:           color565
+** Description:             convert three 8 bit RGB levels to a 16 bit color value
+***************************************************************************************/
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b)
+{
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
+/***************************************************************************************
+** Function name:           color16to8
+** Description:             convert 16 bit color to an 8 bit 332 RGB color value
+***************************************************************************************/
+uint8_t color16to8(uint16_t c)
+{
+  return ((c & 0xE000)>>8) | ((c & 0x0700)>>6) | ((c & 0x0018)>>3);
+}
+
+/***************************************************************************************
+** Function name:           color8to16
+** Description:             convert 8 bit color to a 16 bit 565 color value
+***************************************************************************************/
+uint16_t color8to16(uint8_t color)
+{
+  uint8_t  blue[] = {0, 11, 21, 31}; // blue 2 to 5 bit color lookup table
+  uint16_t color16 = 0;
+
+  //        =====Green=====     ===============Red==============
+  color16  = (color & 0x1C)<<6 | (color & 0xC0)<<5 | (color & 0xE0)<<8;
+  //        =====Green=====    =======Blue======
+  color16 |= (color & 0x1C)<<3 | blue[color & 0x03];
+
+  return color16;
+}
+

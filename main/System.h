@@ -26,7 +26,9 @@
 //	#include <ESPmDNS.h>
 	//#include "tftprint.cpp"
 	//#include "Free_Fonts.cpp"
-	#include <TFT_eSPI.h> // Graphics and font library for ILI9341 driver chip
+//	#include "../components/arduino/libraries/TFT_eSPI/ESP32-SPIDisplay.h" // Graphics and font library
+#include <ESP32-SPIDisplay.h>
+#include <Extensions/Touch.h>
 //	#include <SPI.h>
 //	#include <ESPmDNS.h>
 
@@ -67,7 +69,7 @@
 
 				void BTInit();
 
-				TFT_eSPI *tft;  // Invoke library
+				//Device::Display::Screen *tft;  // Invoke library
 
 				bool BTbegin(String);
 				int BTavailable(void);
@@ -99,7 +101,7 @@
 			#endif
 
 			#ifdef FTP_SERVERESP_H
-				Service::FTP::FtpServer *FTP_Server;
+				//Service::FTP::FtpServer *FTP_Server;
 			#endif
 				void DrawPng();
 

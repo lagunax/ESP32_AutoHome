@@ -23,8 +23,8 @@
 namespace Service {
 	namespace FTP {
 
-		WiFiServer ftpServer( FTP_CTRL_PORT );
-		WiFiServer dataServer( FTP_DATA_PORT_PASV );
+		WiFiServer ftpServer( FTP_CTRL_PORT );//( FTP_CTRL_PORT );
+		WiFiServer dataServer( FTP_DATA_PORT_PASV );//( FTP_DATA_PORT_PASV );
 		FtpServer ftpSrv;
 
 		void Start(String user, String pass){
@@ -62,6 +62,9 @@ namespace Service {
 		  // Default Data connection is Active
 		  dataPassiveConn = true;
 
+		  //ftpServer=new WiFiServer( FTP_CTRL_PORT );
+		  //dataServer=new WiFiServer( FTP_DATA_PORT_PASV );
+
 		  // Set the root directory
 		  strcpy( cwdName, "/" );
 
@@ -76,9 +79,9 @@ namespace Service {
 			return;
 
 		#ifdef FTPSERVER_FULLCLASS
-		  if (ftpServer->hasClient()) {
+		  if (ftpServer.hasClient()) {
 			  client.stop();
-			  client = ftpServer->available();
+			  client = ftpServer.available();
 		  }
 		#else
 		  if (ftpServer.hasClient()) {
@@ -761,14 +764,14 @@ namespace Service {
 		  if (!data.connected())
 		  {
 		#ifdef FTPSERVER_FULLCLASS
-			  while (!dataServer->hasClient() && millis() - startTime < 10000)
+			  while (!dataServer.hasClient() && millis() - startTime < 10000)
 			  {
 				  //delay(100);
 				  yield();
 			  }
-			  if (dataServer->hasClient()) {
+			  if (dataServer.hasClient()) {
 				  data.stop();
-				  data = dataServer->available();
+				  data = dataServer.available();
 					#ifdef FTP_DEBUG
 					  Serial.println("ftpdataserver client....");
 					#endif

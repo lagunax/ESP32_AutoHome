@@ -65,6 +65,8 @@
 namespace Service {
 	namespace FTP {
 
+	//WiFiServer *ftpServer;//=new WiFiServer( FTP_CTRL_PORT );//( FTP_CTRL_PORT );
+	//WiFiServer *dataServer;//=new WiFiServer( FTP_DATA_PORT_PASV );//( FTP_DATA_PORT_PASV );
 
 		class FtpServer;
 		void Start(String user, String pass);
@@ -77,8 +79,8 @@ namespace Service {
 		  void    handleFTP();
 
 		private:
-		  //WiFiServer ftpServer;
-		  //WiFiServer dataServer;
+		  	  //WiFiServer *ftpServer;
+		  	  //WiFiServer *dataServer;
 		  void    iniVariables();
 		  void    clientConnected();
 		  void    disconnectClient();
