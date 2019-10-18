@@ -27,7 +27,7 @@
 	//#include "tftprint.cpp"
 	//#include "Free_Fonts.cpp"
 //	#include "../components/arduino/libraries/TFT_eSPI/ESP32-SPIDisplay.h" // Graphics and font library
-#include <ESP32-SPIDisplay.h>
+#include <ESP32_SPIDisplay.h>
 #include <Extensions/Graphics.h>
 #include <Extensions/Touch.h>
 //	#include <SPI.h>
