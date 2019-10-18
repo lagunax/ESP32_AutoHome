@@ -79,8 +79,8 @@ namespace Service {
 		  void    handleFTP();
 
 		private:
-		  	  //WiFiServer *ftpServer;
-		  	  //WiFiServer *dataServer;
+//		  	  WiFiServer *ftpServer;
+//		  	  WiFiServer *dataServer;
 		  void    iniVariables();
 		  void    clientConnected();
 		  void    disconnectClient();

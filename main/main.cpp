@@ -37,10 +37,8 @@ void setup() {
 	InitColor(&Color16b);
 	InitColor(&Color24b);
 
-	Device::Display::init();
-	//sys->tft->init();
-	//sys->tft->setRotation(2);
-	//sys->tft->fillScreen(TFT_BLACK);
+	Device::Display::init((uint8_t)2);
+	Device::Display::Graphics::init();
 	//sys->tft->cursor->Set(0, 0, 2);
 	//sys->tft->setTextColor(TFT_WHITE,TFT_BLACK);
 	//sys->tft->setTextSize(1);

@@ -151,7 +151,8 @@ void System::DrawPng() {
 			//buffer=(void *)upng_get_buffer(upng);
 			//tft->printf("bpp=%n", (int*) &bpp);
 
-			for (xx = 0; xx < width; xx++) {
+			Device::Display::Graphics::Graph->drawImageBuffer(0,yy,buffer,width, height); yy+=height+5;
+/*			for (xx = 0; xx < width; xx++) {
 				for (yy = 0; yy < height; yy++) {
 //	Serial.printf("\n--- x = %i, y = %i --- \n",(int)xx,(int)yy);
 					upng_GetPixel((void*) pixel, upng, (int) xx, (int) yy);
@@ -163,7 +164,7 @@ void System::DrawPng() {
 					Device::Display::Driver->drawPixel(xx,yy,tmp);
 				}
 			}
-			last_y += yy + 1;
+			last_y += yy + 1;*/
 
 			switch (upng_get_components(upng)) {
 			case 1: //UPNG_LUM
