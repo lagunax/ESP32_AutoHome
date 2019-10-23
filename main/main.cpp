@@ -25,6 +25,7 @@ upng_s_rgb16b *Color16b;
 upng_s_rgb24b *Color24b;
 //Service::FTP::FtpServer ftpSrv;   //set #define FTP_DEBUG in ESP8266FtpServer.h to see ftp verbose on serial
 
+
 #if CONFIG_AUTOSTART_ARDUINO
 
 bool loopTaskWDTEnabled;
@@ -37,8 +38,9 @@ void setup() {
 	InitColor(&Color16b);
 	InitColor(&Color24b);
 
-	Device::Display::init((uint8_t)2);
-	Device::Display::Graphics::init();
+//	Device::Display::init((uint8_t)2);
+// Device::Display::Graphics::init();
+
 	//sys->tft->cursor->Set(0, 0, 2);
 	//sys->tft->setTextColor(TFT_WHITE,TFT_BLACK);
 	//sys->tft->setTextSize(1);

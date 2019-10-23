@@ -32,15 +32,15 @@ freely, subject to the following restrictions:
 	#include "SPIFFS.h"
 
 		struct upng_s_rgb16b{
-			int r:5;
-			int g:6;
 			int b:5;
+			int g:6;
+			int r:5;
 			int null : 16;
 		};
 		struct upng_s_rgb18b{
-			int r:6;
-			int g:6;
 			int b:6;
+			int g:6;
+			int r:6;
 			int null:14;
 		};
 		struct upng_s_rgb24b{

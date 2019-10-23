@@ -69,7 +69,8 @@
 
 				void BTInit();
 
-				//Device::Display::Screen *tft;  // Invoke library
+				Device::Display::Screen *tft;  // Invoke library
+				Device::Display::Graphics::Graphics *Graph;
 
 				bool BTbegin(String);
 				int BTavailable(void);

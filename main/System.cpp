@@ -13,14 +13,19 @@ System::System() {
 	//FTP_Server = new Service::FTP::FtpServer();
 	upng = 0;
 #endif
-	//tft = new Device::Display::Screen();
+	tft = new Device::Display::Screen();
+	tft->init();
+	tft->setRotation(2);
+	Graph=new Device::Display::Graphics::Graphics();
+	Graph->fillScreen(TFT_BLUE);
+
 
 }
 
 System::~System() {
 	// TODO Auto-generated destructor stub
 	//delete (tft);
-	Device::Display::remove();
+//	Device::Display::remove();
 }
 
 #ifdef _BLUETOOTH_SERIAL_H_
@@ -151,20 +156,28 @@ void System::DrawPng() {
 			//buffer=(void *)upng_get_buffer(upng);
 			//tft->printf("bpp=%n", (int*) &bpp);
 
-			Device::Display::Graphics::Graph->drawImageBuffer(0,yy,buffer,width, height); yy+=height+5;
-/*			for (xx = 0; xx < width; xx++) {
+//			Graph->drawImageBuffer(80,yy+80,buffer,width, height); yy+=height+5;//ToDo: make buffer converting
+
+			for (xx = 0; xx < width; xx++) {
 				for (yy = 0; yy < height; yy++) {
 //	Serial.printf("\n--- x = %i, y = %i --- \n",(int)xx,(int)yy);
 					upng_GetPixel((void*) pixel, upng, (int) xx, (int) yy);
 //	Serial.printf("\n r=%i, g=%i, b=%i, a=%i", int (pixel->rgb.r), int (pixel->rgb.g), int (pixel->rgb.b), int(pixel->alpha));
+//					pixel->alpha=pixel->rgb.b;
+//					pixel->rgb.b=pixel->rgb.r;
+					//pixel->rgb.g=pixel->rgb.g;
+//					pixel->rgb.r=pixel->alpha;
+
 					*pixel_src = pixel->rgb;
 					upng_rgb24bto16b(pixel_dst, pixel_src);
 //	Serial.printf("\n r=%i, g=%i, b=%i", int (pixel_dst->r), int (pixel_dst->g), int (pixel_dst->b));
 					upng_rgb16btouint32(&tmp, pixel_dst);
-					Device::Display::Driver->drawPixel(xx,yy,tmp);
+					//Serial.printf("\n tmp=%i",(int)tmp);
+					//tmp=0x00000000;
+					tft->drawPixel(xx+80,yy+last_y,tmp);
 				}
 			}
-			last_y += yy + 1;*/
+			last_y += yy + 1;// */
 
 			switch (upng_get_components(upng)) {
 			case 1: //UPNG_LUM
