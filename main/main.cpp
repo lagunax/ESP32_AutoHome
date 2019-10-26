@@ -20,26 +20,15 @@
 #include "System.h"
 
 TaskHandle_t loopTaskHandle = NULL;
-System *sys = new System();
-upng_s_rgb16b *Color16b;
-upng_s_rgb24b *Color24b;
+System *sys;
 //Service::FTP::FtpServer ftpSrv;   //set #define FTP_DEBUG in ESP8266FtpServer.h to see ftp verbose on serial
-
 
 #if CONFIG_AUTOSTART_ARDUINO
 
 bool loopTaskWDTEnabled;
 
-//void setup();
-//extern "C" void loop();
-
 void setup() {
-
-	InitColor(&Color16b);
-	InitColor(&Color24b);
-
-//	Device::Display::init((uint8_t)2);
-// Device::Display::Graphics::init();
+	sys = new System();
 
 	//sys->tft->cursor->Set(0, 0, 2);
 	//sys->tft->setTextColor(TFT_WHITE,TFT_BLACK);
@@ -96,7 +85,7 @@ void loop() {
 	 *color+=(((char)*(buff+ipos))*pow((double)2,(double)ipos));
 	 }
 	 //Serial.printf("\ncolor=%i",color);
-	 upng_rgb24bto16b(Color16b, Color24b);
+	 color_R8G8B8toR5G6B5(Color16b, Color24b);
 	 Serial.printf("\ncolor=%i",*(int*)Color24b);
 	 Serial.printf("\ncolor16=%i\n",*(int*)Color16b);
 

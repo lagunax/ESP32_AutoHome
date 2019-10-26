@@ -45,7 +45,7 @@
 
 #include "upng.h"
 
-	class System {
+class System {
 
 
 		private:
@@ -59,6 +59,7 @@
 			#ifdef WiFiClientSecure_h
 				WiFiClientSecure WiFi_client;
 			#endif
+				Device::Display::Graphics::Graphics *Graph;
 				upng_t* upng;
 
 		public:
@@ -68,9 +69,6 @@
 				#endif
 
 				void BTInit();
-
-				Device::Display::Screen *tft;  // Invoke library
-				Device::Display::Graphics::Graphics *Graph;
 
 				bool BTbegin(String);
 				int BTavailable(void);

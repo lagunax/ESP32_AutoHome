@@ -6,19 +6,16 @@
  */
 
 #include "System.h"
-
+//using Device::Display::Graphics::Graph;
 System::System() {
 	// TODO Auto-generated constructor stub
 #ifdef FTP_SERVERESP_H
 	//FTP_Server = new Service::FTP::FtpServer();
 	upng = 0;
 #endif
-	tft = new Device::Display::Screen();
-	tft->init();
-	tft->setRotation(2);
+	Device::Display::init();
 	Graph=new Device::Display::Graphics::Graphics();
 	Graph->fillScreen(TFT_BLUE);
-
 
 }
 
@@ -110,12 +107,11 @@ IPAddress System::WFlocalIP() {
 void System::DrawPng() {
 	Serial.printf("\nstart draw\n");
 	unsigned width, height;
-	void * buffer;
-	upng_s_rgba32b *pixel;
-	upng_s_rgb24b *pixel_src = InitColorR8G8B8();
-	upng_s_rgb16b *pixel_dst = InitColorR5G6B5();
+	uint16_t* tmpbuffer;
+	uint8_t* tmpalpha;
+	int alphas;
 	uint32_t tmp;
-	const char *filenames[2] = { "/t.png", "/24wifi.png" };
+	const char *filenames[2] = { "/24wifi.png", "/t.png"};
 	int maxfiles = 2, last_y = 0;
 	char xx = 0, yy = 0;
 	for (int numfiles = 0; numfiles < maxfiles; numfiles++) {
@@ -125,59 +121,26 @@ void System::DrawPng() {
 			Serial.print("file not found");
 		}
 		upng_decode(upng);
-		//Serial.printf("size = %i", (int) upng_get_size(upng));
 
-		//buffer = malloc((unsigned long int)upng_get_size(upng));
-		buffer = (void*)upng_get_buffer(upng);
-
-//		char ttt;
-
-//		for(char bbb=0; bbb<7; bbb++){
-//			ttt=*((char *)(buffer+bbb));
-//			Serial.printf("buffer[0...7]=%i",(int)ttt);
-//		}
-//
-//		Serial.printf("buffer size: %i",(int) upng_get_size(upng));
 		if (upng_get_error(upng) != UPNG_EOK) {
-			//printf("error: %u %u\n", upng_get_error(upng), upng_get_error_line(upng));
 			Serial.printf("error: %u %u\n", upng_get_error(upng),
 					upng_get_error_line(upng));
-			//return 0;
+			//return 0;pixel=%i
 		} else {
 
 			width = upng_get_width(upng);
 			height = upng_get_height(upng);
-			//uint bpp=upng_get_bitdepth(upng);
-			uint bpp = upng_get_bpp(upng);
 
-			pixel = (upng_s_rgba32b*) malloc(
-					(unsigned long int) ((bpp + 7) / 8));
-			//buffer = malloc((unsigned long int)upng_get_size(upng));
-			//buffer=(void *)upng_get_buffer(upng);
-			//tft->printf("bpp=%n", (int*) &bpp);
+			tmpbuffer=colorBuffer_R8G8B8toR5G6B5(upng);
+			Graph->drawImageBuffer(0,yy,tmpbuffer,width, height); yy+=height+5;//ToDo: make buffer converting
 
-//			Graph->drawImageBuffer(80,yy+80,buffer,width, height); yy+=height+5;//ToDo: make buffer converting
+			tmpalpha=colorBuffer_A8R8G8B8toA8(upng);
+			//alphas=upng_get_alpha( upng,  &tmpalpha);
+			//Serial.printf("\nAlphas=%i",alphas);
+			Graph->drawImageBufferAlpha(100,100,tmpbuffer,tmpalpha,width, height);// yy+=height+5;//ToDo: make buffer converting
+			free(tmpalpha);
 
-			for (xx = 0; xx < width; xx++) {
-				for (yy = 0; yy < height; yy++) {
-//	Serial.printf("\n--- x = %i, y = %i --- \n",(int)xx,(int)yy);
-					upng_GetPixel((void*) pixel, upng, (int) xx, (int) yy);
-//	Serial.printf("\n r=%i, g=%i, b=%i, a=%i", int (pixel->rgb.r), int (pixel->rgb.g), int (pixel->rgb.b), int(pixel->alpha));
-//					pixel->alpha=pixel->rgb.b;
-//					pixel->rgb.b=pixel->rgb.r;
-					//pixel->rgb.g=pixel->rgb.g;
-//					pixel->rgb.r=pixel->alpha;
-
-					*pixel_src = pixel->rgb;
-					upng_rgb24bto16b(pixel_dst, pixel_src);
-//	Serial.printf("\n r=%i, g=%i, b=%i", int (pixel_dst->r), int (pixel_dst->g), int (pixel_dst->b));
-					upng_rgb16btouint32(&tmp, pixel_dst);
-					//Serial.printf("\n tmp=%i",(int)tmp);
-					//tmp=0x00000000;
-					tft->drawPixel(xx+80,yy+last_y,tmp);
-				}
-			}
-			last_y += yy + 1;// */
+			free(tmpbuffer);
 
 			switch (upng_get_components(upng)) {
 			case 1: //UPNG_LUM
@@ -199,11 +162,9 @@ void System::DrawPng() {
 				//return 1;
 			}
 
-			free(pixel);
 			//free(buffer); do not need to free here, upng_free removes buffer
 
 			upng_free(upng);
-			buffer = 0;
 		}
 
 	}
