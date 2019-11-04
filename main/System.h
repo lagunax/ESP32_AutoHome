@@ -30,6 +30,10 @@
 #include <ESP32_SPIDisplay.h>
 #include <Extensions/Graphics.h>
 #include <Extensions/Touch.h>
+#include <Extensions/Font/Font.h>
+
+#include <Extensions/cBuffer.h>
+
 //	#include <SPI.h>
 //	#include <ESPmDNS.h>
 
@@ -60,6 +64,7 @@ class System {
 				WiFiClientSecure WiFi_client;
 			#endif
 				Device::Display::Graphics::Graphics *Graph;
+				Device::Display::Graphics::Font *Fonts;
 				upng_t* upng;
 
 		public:

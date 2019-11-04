@@ -16,6 +16,8 @@ System::System() {
 	Device::Display::init();
 	Graph=new Device::Display::Graphics::Graphics();
 	Graph->fillScreen(TFT_BLUE);
+	Fonts=new Device::Display::Graphics::Font();
+	//Fonts->Cursor();
 
 }
 

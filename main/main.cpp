@@ -23,21 +23,48 @@ TaskHandle_t loopTaskHandle = NULL;
 System *sys;
 //Service::FTP::FtpServer ftpSrv;   //set #define FTP_DEBUG in ESP8266FtpServer.h to see ftp verbose on serial
 
+Device::Memory::c_Buffer *testBuffer;
+
 #if CONFIG_AUTOSTART_ARDUINO
 
 bool loopTaskWDTEnabled;
 
 void setup() {
-	sys = new System();
 
-	//sys->tft->cursor->Set(0, 0, 2);
-	//sys->tft->setTextColor(TFT_WHITE,TFT_BLACK);
-	//sys->tft->setTextSize(1);
-
-	//sys->tft->println("starting...");
 	Serial.begin(115200);
-	//sys->tft->println("serial");
 
+	sys = new System();
+	testBuffer = new Device::Memory::c_Buffer(2,sizeof(T_DispCoords),4,5);
+	T_DispCoords testValue=127, *testReturn;
+
+	Serial.println("\nBuffer test:\n");
+	for (int xx=0;xx<4;xx++) {
+		for (int yy=0;yy<5;yy++) {
+			testBuffer->set(&testValue,xx,yy);
+			Serial.printf("%i\t",(int)testValue);
+		}
+		Serial.print("\n");
+	}
+
+	testValue=8765432100;
+	testBuffer->set((void *)&testValue,1,2);
+	Serial.print("\n---\n");
+
+	for (int xx=0;xx<4;xx++) {
+		for (int yy=0;yy<5;yy++) {
+			testReturn=(T_DispCoords*)testBuffer->get(xx,yy);
+			Serial.printf("%i\t",(int)*testReturn);
+			free(testReturn);
+		}
+		Serial.print("\n");
+	}// */
+//	testReturn=(T_DispCoords*)testBuffer->get(0,0);
+//	Serial.printf("return %i\t",(int)*testReturn);
+
+
+
+	Serial.println("\nEnd Buffer test.\n");
+// */
 	SPIFFS.begin(true);
 	//sys->tft->println("SPIFFS");
 

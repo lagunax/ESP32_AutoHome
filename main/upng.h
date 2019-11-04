@@ -34,6 +34,8 @@ freely, subject to the following restrictions:
 #include <Types.h>
 #include "pebble.h"
 
+using namespace Device::Display;
+
 typedef enum upng_error {
 	UPNG_EOK			= 0, /* success (no error) */
 	UPNG_ENOMEM			= 1, /* memory allocation failed */
