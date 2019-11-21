@@ -35,7 +35,7 @@ void setup() {
 
 	sys = new System();
 	testBuffer = new Device::Memory::c_Buffer(2,sizeof(T_DispCoords),10,10);
-	T_DispCoords testValue=10, *testReturn;
+	T_DispCoords testValue=11, *testReturn;
 
 	void *testbuf;
 	st_Size2D *pos=new st_Size2D();
@@ -52,11 +52,20 @@ void setup() {
 	}
 
 	Serial.print("\n-------\n");
-	pos->width=3;
-	pos->height=4;
-	szs->width=2;
-	szs->height=3;
+	pos->width=0;
+	pos->height=0; //+ready
+	szs->width=6;
+	szs->height=5;
 	testbuf=testBuffer->copyBuffer((void*)pos,(void*)szs);
+	Serial.print("\n-------\n");
+	for (int xx=0;xx<szs->width;xx++) {
+		for (int yy=0;yy<szs->height;yy++) {
+			memcpy(&testValue,testbuf+(xx*testBuffer->getUnitSize()+yy*szs->width*testBuffer->getUnitSize()),testBuffer->getUnitSize());
+			//testBuffer->set(&testValue,xx,yy);
+			Serial.printf("%i\t",(int)testValue);
+		}
+		Serial.print("\n");
+	}
 
 
 	Serial.println("\nEnd Buffer test.\n");
